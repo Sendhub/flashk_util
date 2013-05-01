@@ -1,0 +1,15 @@
+flashk_util is written and maintained by InfoReach, Inc (AKA "SendHub").
+
+Developers:
+===========
+    - Jay Taylor [@jtaylor] <jay@sendhub.com>
+
+
+Additional information:
+=======================
+
+The authdigest module is based on the Werkzeug authdigest module, with the following copyright:
+	- (c) 2011 by the Werkzeug Team <armin.ronacher@active-4.com>
+
+The crypto and baseconv modules are based on those from the django project.  Both of these projects are BSD licensed, with the following copyrights:
+	- (c) Django Software Foundation and individual contributors

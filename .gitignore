@@ -1,0 +1,8 @@
+# Intermediate Python files
+*.py[cod]
+
+# Vim temp files
+*.sw[op]
+
+# Mr. Macintosh
+.DS_Store
