@@ -8,8 +8,8 @@ A small Flask module for adding CSRF protection.
 
 NB: Based on http://sjl.bitbucket.org/flask-csrf/ with subsequent modifications to suit SendHub's needs.
 
-To allow custom CSRF header to be used in place of cookie or form post, set app.conf['CSRF_HEADER'] to the header name
-you want to use.
+To allow custom CSRF header to be used in place of cookie or form post, set app.conf['CSRF_TOKEN'] to the header/cookie
+name you want to use.
 """
 
 import logging
@@ -26,6 +26,8 @@ def csrfExempt(view):
 
 
 def csrf(app, onCsrf=None):
+    csrfTokenKey = app.config.get('CSRF_TOKEN', 'CSRF-TOKEN')
+
     @app.before_request
     def _csrfCheckExemptions():
         try:
@@ -44,13 +46,15 @@ def csrf(app, onCsrf=None):
             # NB: Don't enforce CSRF if there was no referer.  This frees API clients from worrying about it but
             # enforces it for browser clients.
             if request.method in ('POST', 'PUT', 'PATCH', 'DELETE') and 'Referer' in request.headers:
-                maybeHeader = filter(lambda tup: tup[0].lower() == app.config['CSRF_HEADER'].lower(), request.headers) \
-                    if 'CSRF_HEADER' in app.config else tuple()
+                maybeHeader = filter(
+                    lambda tup: tup[0].lower() in (csrfTokenKey.lower(), 'x-{0}'.format(csrfTokenKey.lower())),
+                    request.headers
+                )
 
-                csrfToken = request.cookies.get('_csrfToken', None)
+                csrfToken = request.cookies.get(csrfTokenKey, None)
 
                 if not csrfToken or ((not maybeHeader or len(maybeHeader[0]) < 2 or csrfToken != maybeHeader[0][1]) and
-                    csrfToken != request.form.get('_csrfToken', None)):
+                    csrfToken != request.form.get(csrfTokenKey, None)):
                     if onCsrf and callable(onCsrf):
                         logging.debug(u'Invoking custom CSRF failure handler')
                         onCsrf(*app.match_request())
@@ -61,17 +65,17 @@ def csrf(app, onCsrf=None):
     @app.after_request
     def _setCsrfCookie(response):
         """Set a CSRF cookie if one has been generated during this request."""
-        if hasattr(request, '_csrfToken'):
-            logging.debug(u'Setting the CSRF token in a cookie of the response')
-            response.set_cookie('_csrfToken', request._csrfToken)
+        if hasattr(request, csrfTokenKey):
+            csrfToken = getattr(request, csrfTokenKey)
+            logging.debug(u'Setting CSRF token in response cookie: {0}:{1}'.format(csrfTokenKey, csrfToken))
+            response.set_cookie(csrfTokenKey, csrfToken)
         return response
-        
     
     def generateCsrfToken():
-        if not hasattr(request, '_csrfToken'):
-            request._csrfToken = str(uuid4())
-            logging.debug(u'Generated a new CSRF token: {0}'.format(request._csrfToken))
-        return request._csrfToken
+        if not hasattr(request, csrfTokenKey):
+            setattr(request, csrfTokenKey, str(uuid4()))
+            logging.debug(u'Generated a new CSRF token: {0}'.format(getattr(request, csrfTokenKey)))
+        return getattr(request, csrfTokenKey)
     
     app.jinja_env.globals['csrfToken'] = generateCsrfToken
 
