@@ -28,6 +28,14 @@ def csrfExempt(view):
 def csrf(app, onCsrf=None):
     csrfTokenKey = app.config.get('CSRF_TOKEN', 'CSRF-TOKEN')
 
+    def searchCsrfInHeaders():
+        """Searches through a set of key-value pairs for a CSRF token."""
+        maybeHeader = filter(
+            lambda tup: tup[0].lower() in (csrfTokenKey.lower(), 'x-{0}'.format(csrfTokenKey.lower())),
+            request.headers
+        )
+        return maybeHeader[0][1] if maybeHeader and len(maybeHeader[0]) > 1 else None
+
     @app.before_request
     def _csrfCheckExemptions():
         try:
@@ -46,15 +54,9 @@ def csrf(app, onCsrf=None):
             # NB: Don't enforce CSRF if there was no referer.  This frees API clients from worrying about it but
             # enforces it for browser clients.
             if request.method in ('POST', 'PUT', 'PATCH', 'DELETE') and 'Referer' in request.headers:
-                maybeHeader = filter(
-                    lambda tup: tup[0].lower() in (csrfTokenKey.lower(), 'x-{0}'.format(csrfTokenKey.lower())),
-                    request.headers
-                )
-
                 csrfToken = request.cookies.get(csrfTokenKey, None)
-
-                if not csrfToken or ((not maybeHeader or len(maybeHeader[0]) < 2 or csrfToken != maybeHeader[0][1]) and
-                    csrfToken != request.form.get(csrfTokenKey, None)):
+                if (not csrfToken and not searchCsrfInHeaders()) or \
+                    (csrfToken != searchCsrfInHeaders() and csrfToken != request.form.get(csrfTokenKey, None)):
                     if onCsrf and callable(onCsrf):
                         logging.debug(u'Invoking custom CSRF failure handler')
                         onCsrf(*app.match_request())
@@ -73,8 +75,10 @@ def csrf(app, onCsrf=None):
     
     def generateCsrfToken():
         if not hasattr(request, csrfTokenKey):
-            setattr(request, csrfTokenKey, str(uuid4()))
-            logging.debug(u'Generated a new CSRF token: {0}'.format(getattr(request, csrfTokenKey)))
+            # Prefer a pre-existing CSRF token when one is already in the cookie.
+            csrfToken = request.cookies.get(csrfTokenKey, None) or str(uuid4())
+            setattr(request, csrfTokenKey, csrfToken)
+            logging.debug(u'Generated a new CSRF token: {0}'.format(csrfToken))
         return getattr(request, csrfTokenKey)
     
     app.jinja_env.globals['csrfToken'] = generateCsrfToken
