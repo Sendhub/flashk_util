@@ -31,4 +31,7 @@ def getParamAsInt(request, key, default):
     @param default: The value to return if the key does not exist
     @return: The value matching the key, or if it does not exist, the default value provided.
     """
-    return int(request.args.get(key)) if key in request.args and request.args[key].isdigit() else default
+    if key in request.args and request.args[key].isdigit():
+        return int(request.args.get(key))
+    else:
+        return default
