@@ -21,3 +21,14 @@ def jsonp(func):
         else:
             return func(*args, **kwargs)
     return decorated_function
+
+
+def getParamAsInt(request, key, default):
+    """
+    Safely pulls a key from the request and converts it to an integer
+    @param request: The HttpRequest object
+    @param key: The key from request.args containing the desired value
+    @param default: The value to return if the key does not exist
+    @return: The value matching the key, or if it does not exist, the default value provided.
+    """
+    return int(request.args.get(key)) if key in request.args and request.args[key].isdigit() else default
