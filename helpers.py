@@ -122,7 +122,7 @@ def csvify(*args, **kwargs):
     as_download = kwargs.pop("as_download", False)
     response_headers = None
     if as_download:
-        Headers([('Content-Disposition', "attachment;filename={filename}".format(filename=filename))])
+        response_headers = Headers([('Content-Disposition', "attachment;filename={filename}".format(filename=filename))])
 
     return current_app.response_class(
         generate_csv(),
