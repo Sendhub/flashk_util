@@ -1,8 +1,11 @@
 # -*- coding: utf-8 -*-
 
-import settings, simplejson as json
+"""Flask utilities and generalized helper functionality."""
+
+import settings, simplejson as json, unicodedata
 from flask import request
 from flask.globals import current_app
+from werkzeug.datastructures import Headers
 from sh_util.json import defaultEncoder
 
 def jsonify(*args, **kwargs):
@@ -72,4 +75,78 @@ def getViewWindowParams(*params):
 
     return out
 
+
+def _escapeQuotes(key, _dict):
+    """
+    Safely escape quotes of each item that goes in a row
+    @param key: The key of the dictionary to pull from.
+    @param _dict: The target dictionary holding the data
+    @return:
+    """
+    value = _dict.get(key, '')
+    # if the key exists but has a None value, just use the empty string.
+    value = value if value is not None else ''
+    value = value if isinstance(value, str) else str(value)
+    value = value.replace('"', '""')
+    return value
+ 
+
+def csvify(*args, **kwargs):
+    """
+    Creates a :class:`~flask.Response` with the CSV representation of the given arguments with an `text/csv` mimetype.
+
+    Example usage::
+ 
+        @app.route('/_get_logs')
+        def get_current_user():
+            return csvify(
+                as_download=True,
+                headers=['date', 'message'],
+                rows=[
+                    {
+                        'date': '2012-12-12',
+                        'message': 'foo'
+                    },
+                    {
+                        'date': '2011-11-11',
+                        'message': 'bar'
+                    },
+                ]
+            )
+
+    This will send a CSV file response like this to the client::
+
+        date,message
+        2012-12-12,foo
+        2011-11-11,bar
+    """
+    headers = [str(header) for header in kwargs.pop('headers', [])]
+    assert len(headers) > 0, 'Cannot write CSV without Headers!'
+    rows = kwargs.pop('rows', [])
+
+    def generateCsv():
+        """Write the header and the iterate over the rows."""
+        ##########################################################################
+        # write the header
+        yield '{}\n'.format(','.join(headers))
+        ##########################################################################
+        # Write the body of the document
+        # ----> First generate the format string reused for each row in the csv
+        #       file such that row_string = '{},{},{},{},...\n'
+        row_string = u'{}\n'.format(u','.join([u'"{}"' for header in headers]))
+        # ---> Then use that format string as the output to the next row
+        for row in rows:
+            # Get a value for each header, making sure to escape quotes and
+            # normalize for unicode along the way
+            csv_line = [_escapeQuotes(header, row) for header in headers]
+            csv_line = row_string.format(*csv_line)
+            yield unicodedata.normalize('NFKD', csv_line).encode('ascii', 'ignore')
+
+    filename = kwargs.pop('filename', 'file.csv')
+    as_download = kwargs.pop('as_download', False)
+    response_headers = None
+    if as_download:
+        Headers([('Content-Disposition', 'attachment;filename={filename}'.format(filename=filename))])
+
+    return current_app.response_class(generateCsv(), mimetype='text/csv', headers=response_headers)
 
