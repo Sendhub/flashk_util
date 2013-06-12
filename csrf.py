@@ -14,9 +14,8 @@ name you want to use.
 
 import logging
 from uuid import uuid4
-from flask import abort, request, session, g
+from flask import abort, request, g
 from werkzeug.routing import NotFound
-import settings
 
 _exemptViews = []
 
@@ -28,7 +27,7 @@ def csrfExempt(view):
 
 def csrf(app, onCsrf=None):
     csrfTokenKey = app.config.get('CSRF_TOKEN', 'CSRF-TOKEN')
-    csrfTokenDomain = app.config.get('CSRF_TOKEN_DOMAIN', 'example.com')
+    csrfTokenDomain = app.config.get('CSRF_TOKEN_DOMAIN', None)
 
     def searchCsrfInHeaders():
         """Searches through a set of key-value pairs for a CSRF token."""
@@ -72,7 +71,8 @@ def csrf(app, onCsrf=None):
         if hasattr(request, csrfTokenKey):
             csrfToken = getattr(request, csrfTokenKey)
             logging.debug(u'Setting CSRF token in response cookie: {0}:{1}'.format(csrfTokenKey, csrfToken))
-            response.set_cookie(csrfTokenKey, csrfToken, domain=csrfTokenDomain)
+            maybeCsrfDomain = {'domain': csrfTokenDomain} if csrfTokenDomain is not None else {}
+            response.set_cookie(csrfTokenKey, csrfToken, **maybeCsrfDomain)
         return response
     
     def generateCsrfToken():
