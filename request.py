@@ -35,3 +35,12 @@ def getParamAsInt(request, key, default):
         return int(request.args.get(key))
     else:
         return default
+
+def getClientIP(request):
+
+    if not request.headers.getlist("X-Forwarded-For"):
+        ip = request.remote_addr
+    else:
+        ip = request.headers.getlist("X-Forwarded-For")[0]
+
+    return ip
