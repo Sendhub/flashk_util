@@ -6,7 +6,8 @@ Taken from:  https://gist.github.com/1094140
 
 from functools import wraps
 from flask import request, current_app
-
+from flask import Flask
+from werkzeug.routing import BaseConverter
 
 def jsonp(func):
     """Wraps JSONified output for JSONP requests."""
@@ -44,3 +45,9 @@ def getClientIP(request):
         ip = request.headers.getlist("X-Forwarded-For")[0]
 
     return ip
+
+class RegexConverter(BaseConverter):
+    def __init__(self, url_map, *items):
+        super(RegexConverter, self).__init__(url_map)
+
+        self.regex = items[0]
