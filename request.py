@@ -60,8 +60,8 @@ class ShHTTPException(HTTPException):
         return ('%(description)s') % {'description':  self.get_description(environ)}
 
     def get_headers(self, environ):
-        """Get a list of headers."""
-        return [('Content-Type', 'text/html')]
+        """Always return errors as json"""
+        return [('Content-Type', 'application/json')]
 
 class BadRequest(ShHTTPException):
     """*400* `Bad Request`
