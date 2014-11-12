@@ -142,3 +142,22 @@ class NotImplemented(ShHTTPException):
         '<p>The server does not support the action requested by the '
         'browser.</p>'
     )
+
+def paginate(request, objects, total, offset, limit):
+    def get_url(offset, limit):
+        return '{}?&offset={}&limit={}'.format(request.path, offset, limit)
+
+    response = {
+        'meta': {
+            'total': total,
+            'limit': limit,
+            'next': get_url(offset + limit, limit)
+            if offset + limit < total else None,
+            'previous': get_url(offset - limit, limit)
+            if offset - limit >= 0 else None,
+            'offset': offset,
+        },
+        'objects': objects
+    }
+
+    return response
