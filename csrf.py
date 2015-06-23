@@ -54,7 +54,7 @@ def csrf(app, onCsrf=None):
         if not g._csrfExempt:
             # NB: Don't enforce CSRF if there was no referer.  This frees API clients from worrying about it but
             # enforces it for browser clients.
-            if request.method in ('POST', 'PUT', 'PATCH', 'DELETE') and 'Referer' in request.headers:
+            if request.method in ('POST', 'PUT', 'PATCH', 'DELETE'):
                 csrfToken = request.cookies.get(csrfTokenKey, None)
                 if (not csrfToken and not searchCsrfInHeaders()) or \
                     (csrfToken != searchCsrfInHeaders() and csrfToken != request.form.get(csrfTokenKey, None)):
