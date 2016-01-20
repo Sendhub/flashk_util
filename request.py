@@ -8,7 +8,6 @@ from functools import wraps
 from flask import request, current_app
 from werkzeug.routing import BaseConverter
 from werkzeug.exceptions import HTTPException
-import logging
 
 def jsonp(func):
     """Wraps JSONified output for JSONP requests."""
