@@ -6,7 +6,6 @@ Taken from:  https://gist.github.com/1094140
 
 from functools import wraps
 from flask import request, current_app
-from flask import Flask
 from werkzeug.routing import BaseConverter
 from werkzeug.exceptions import HTTPException
 
@@ -39,12 +38,22 @@ def getParamAsInt(request, key, default):
         return default
 
 def getClientIP(request):
+    """
+    Pull the requested client IP address from the X-Forwarded-For request
+    header. If there is more than one IP address in the value, it will return
+    the first one.
 
-    if not request.headers.getlist("X-Forwarded-For"):
-        ip = request.remote_addr
+    For more info, see: 'def access_route' in
+    https://github.com/mitsuhiko/werkzeug/blob/master/werkzeug/wrappers.py
+
+    :param request:
+    :return str: The client IP address, or none if neither the X-Forwarded-For
+       header, nor REMOTE_ADDR are present in the environment.
+    """
+    if request.access_route > 0:
+        ip = request.access_route[0]
     else:
-        ip = request.headers.getlist("X-Forwarded-For")[0]
-
+        ip = None
     return ip
 
 class RegexConverter(BaseConverter):
