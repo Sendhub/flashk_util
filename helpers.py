@@ -2,6 +2,7 @@
 
 """Flask utilities and generalized helper functionality."""
 
+from builtins import str
 import settings, simplejson as json, unicodedata
 from flask import request
 from flask.globals import current_app
@@ -133,7 +134,7 @@ def csvify(*args, **kwargs):
         # Write the body of the document
         # ----> First generate the format string reused for each row in the csv
         #       file such that row_string = '{},{},{},{},...\n'
-        row_string = u'{}\n'.format(u','.join([u'"{}"' for header in headers]))
+        row_string = '{}\n'.format(','.join(['"{}"' for header in headers]))
         # ---> Then use that format string as the output to the next row
         for row in rows:
             # Get a value for each header, making sure to escape quotes and

@@ -18,5 +18,5 @@ class ShRequestHandler(BaseRequestHandler):
 
     def log_request(self, code='-', size='-'):
         duration = int((self.shRequestProcessed - self.shRequestStarted) * 1000)
-        self.log('info', u'"{0}" {1} {2} [{3}ms]'.format(self.requestline.replace('%', '%%'), code, size, duration))
+        self.log('info', '"{0}" {1} {2} [{3}ms]'.format(self.requestline.replace('%', '%%'), code, size, duration))
 

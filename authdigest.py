@@ -32,6 +32,8 @@ which is
     :license: BSD, see LICENSE at https://github.com/shanewholloway/werkzeug/blob/master/LICENSE for further details.
 """
 
+from builtins import map
+from builtins import object
 import hashlib, os, weakref, werkzeug
 
 
@@ -123,7 +125,7 @@ class RealmDigestDb(object):
             response = self.challengeClass(response, status)
             authReq = response.www_authenticate
         else:
-            if isinstance(status, (int, long)):
+            if isinstance(status, int):
                 response.status_code = status
             else: response.status = status
 
@@ -148,7 +150,7 @@ class AuthenticationResult(object):
         return '<authenticated: %r reason: %r>' % (
             self.authenticated, self.reason)
 
-    def __nonzero__(self):
+    def __bool__(self):
         return bool(self.authenticated)
 
     def deny(self, reason, authenticated=False):

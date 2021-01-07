@@ -12,7 +12,7 @@ b64_decode = lambda s: base64.urlsafe_b64decode(s + ('=' * (-len(s) % 4))) # s +
 def salted_hmac(key_salt, value, secret):
     return hmac.new(hashlib.sha1(key_salt + secret).digest(), msg=value, digestmod=hashlib.sha1)
 
-base64_hmac = lambda (salt, value, key): b64_encode(salted_hmac(salt, value, key).digest())
+base64_hmac = lambda salt_value_key: b64_encode(salted_hmac(salt_value_key[0], salt_value_key[1], salt_value_key[2]).digest())
 
 signature = lambda value: base64_hmac((settings.SALT + 'signer', value, settings.SECRET_KEY))
 

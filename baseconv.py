@@ -39,6 +39,8 @@ Sample usage::
 
 """
 
+from builtins import str
+from builtins import object
 BASE2_ALPHABET = '01'
 BASE16_ALPHABET = '0123456789ABCDEF'
 BASE56_ALPHABET = '23456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz'
@@ -101,7 +103,7 @@ base62 = BaseConverter(BASE62_ALPHABET)
 base64 = BaseConverter(BASE64_ALPHABET, sign='$')
 
 if __name__ == '__main__':
-    print '101'
+    print('101')
     res1 = base62.encode(101)
-    print '%s' % res1
-    print '%s' % base62.decode(res1)
+    print('%s' % res1)
+    print('%s' % base62.decode(res1))
