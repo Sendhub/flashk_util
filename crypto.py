@@ -1,41 +1,60 @@
 # -*- coding: utf-8 -*-
+# pylint: disable=E0401, E1101
+"""Crypto module"""
+import base64
+import hmac
+import hashlib
+import time
+import zlib
+import simplejson as json
+import settings
+import baseconv
 
-import base64, hmac, hashlib, time, settings, re, zlib, simplejson as json
-from . import baseconv
+SEP = ':'
 
-sep = ':'
 
-b64_encode = lambda s: base64.urlsafe_b64encode(s).strip('=')
+def b64_encode(_s):
+    """encodes string as base64"""
+    return base64.urlsafe_b64encode(_s).decode('utf-8').strip('=')
 
-b64_decode = lambda s: base64.urlsafe_b64decode(s + ('=' * (-len(s) % 4))) # s + padding
+
+def b64_decode(_s):
+    """decodes string as base64"""
+    return base64.urlsafe_b64decode(_s + ('=' * (-len(_s) % 4)))  # s + padding
+
 
 def salted_hmac(key_salt, value, secret):
-    return hmac.new(hashlib.sha1(key_salt + secret).digest(), msg=value, digestmod=hashlib.sha1)
+    """salted hmac"""
+    return hmac.new(hashlib.sha1(key_salt + secret).digest(), msg=value,
+                    digestmod=hashlib.sha1)
 
-base64_hmac = lambda salt_value_key: b64_encode(salted_hmac(salt_value_key[0], salt_value_key[1], salt_value_key[2]).digest())
 
-signature = lambda value: base64_hmac((settings.SALT + 'signer', value, settings.SECRET_KEY))
+def base64_hmac(salt_value_key):
+    """encodes hmac"""
+    return b64_encode(salted_hmac(salt_value_key[0], salt_value_key[1],
+                                  salt_value_key[2]).digest())
 
-#_signedValueCleanerRe = re.compile(r'''"?(.*)"?''')
+
+def signature(value):
+    """adds signature"""
+    return base64_hmac((settings.SALT + 'signer',
+                        value, settings.SECRET_KEY))
+
 
 def unsign(signed_value, max_age):
-    #signed_value = _signedValueCleanerRe.sub(r'\1', signed_value)
-    if sep not in signed_value:
-        raise Exception('Bad signature - no "%s" found in value' % sep)
-    value, sig = signed_value.rsplit(sep, 1)
+    """unsign the signature value"""
+    if SEP not in signed_value:
+        raise Exception('Bad signature - no "%s" found in value' % SEP)
+    value, sig = signed_value.rsplit(SEP, 1)
 
-    #print 'value=%s, sig=%s' % (value, sig)
     computed_sig = signature(value)
 
     if computed_sig != sig:
         raise Exception('Signatures do not match')
 
-    #print 'computed_sig=%s' % computed_sig
-
-    value2, timestamp = value.rsplit(sep, 1)
+    value2, timestamp = value.rsplit(SEP, 1)
 
     decoded_timestamp = int(baseconv.base62.decode(timestamp))
-    #print 'timestamp=%s, decoded_timestamp=%s' % (timestamp, decoded_timestamp)
 
     age = time.time() - decoded_timestamp
     if age > max_age:
@@ -43,28 +62,26 @@ def unsign(signed_value, max_age):
 
     return value2
 
-def loadEncodedS(unsigned_value):
+
+def load_encoded_s(unsigned_value):
     """Takes an unsigned value and decompresses and deserializes it."""
-    import zlib, simplejson as json
-    if len(unsigned_value) is 0 or unsigned_value[0] != '.':
-        raise Exception(
-            'Invalid unsigned value, "{0}", was expecting something which starts with a "."'.format(unsigned_value)
-        )
+    if len(unsigned_value) == 0 or unsigned_value[0] != '.':
+        raise Exception('Invalid unsigned value, "{0}", was expecting '
+                        'something which starts with '
+                        'a "."'.format(unsigned_value))
     data = b64_decode(unsigned_value[1:])
-    #print 'data=%s' % data
     data2 = zlib.decompress(data)
-    #print 'data2=%s' % data2
     return json.loads(data2)
 
 
 def dict2signed(data):
     """Takes a dictionary and produces a signed compressed value."""
-    b64d = '.' + b64_encode(zlib.compress(json.dumps(data, separators=(',', ':'))))
+    b64d = '.' + b64_encode(
+        zlib.compress(json.dumps(data, separators=(',', ':'))))
 
     value = '%s%s%s' % (b64d, ':', baseconv.base62.encode(int(time.time())))
 
-    signed = '%s%s%s' % (value, ':', base64_hmac((settings.SALT + 'signer', value, settings.SECRET_KEY)))
+    signed = '%s%s%s' % (value, ':', base64_hmac(
+        (settings.SALT + 'signer', value, settings.SECRET_KEY)))
 
     return signed
-
-

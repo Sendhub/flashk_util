@@ -5,18 +5,25 @@
 import time
 from werkzeug.serving import BaseRequestHandler
 
+
 class ShRequestHandler(BaseRequestHandler):
     """Extend werkzeug request handler to suit our needs."""
-    def handle(self):
-        self.shRequestStarted = time.time()
-        rv = super(ShRequestHandler, self).handle()
-        return rv
+    def __init__(self, *args, **kwargs):
+        self.sh_request_started = None
+        self.sh_request_processed = None
+        super().__init__(*args, **kwargs)
 
-    def send_response(self, *args, **kw):
-        self.shRequestProcessed = time.time()
-        super(ShRequestHandler, self).send_response(*args, **kw)
+    def handle(self):
+        self.sh_request_started = time.time()
+        _rv = super().handle()  # pylint: disable=E1111
+        return _rv
+
+    def send_response(self, *args, **kw):  # pylint: disable=W0222
+        self.sh_request_processed = time.time()
+        super().send_response(*args, **kw)
 
     def log_request(self, code='-', size='-'):
-        duration = int((self.shRequestProcessed - self.shRequestStarted) * 1000)
-        self.log('info', '"{0}" {1} {2} [{3}ms]'.format(self.requestline.replace('%', '%%'), code, size, duration))
-
+        duration = int(
+            (self.sh_request_processed - self.sh_request_started) * 1000)
+        self.log('info', '"{0}" {1} {2} [{3}ms]'.format(
+            self.requestline.replace('%', '%%'), code, size, duration))

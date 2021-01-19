@@ -1,4 +1,4 @@
-from builtins import str
+"""response module"""
 from flask import jsonify
 from werkzeug.exceptions import HTTPException
 from werkzeug.exceptions import default_exceptions

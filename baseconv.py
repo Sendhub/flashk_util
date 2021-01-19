@@ -39,16 +39,17 @@ Sample usage::
 
 """
 
-from builtins import str
-from builtins import object
 BASE2_ALPHABET = '01'
 BASE16_ALPHABET = '0123456789ABCDEF'
 BASE56_ALPHABET = '23456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz'
 BASE36_ALPHABET = '0123456789abcdefghijklmnopqrstuvwxyz'
-BASE62_ALPHABET = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'
+BASE62_ALPHABET = '0123456789ABCDEFGHIJKLMNOPQRSTU' \
+                  'VWXYZabcdefghijklmnopqrstuvwxyz'
 BASE64_ALPHABET = BASE62_ALPHABET + '-_'
 
-class BaseConverter(object):
+
+class BaseConverter:
+    """class for base converter"""
     decimal_digits = '0123456789'
 
     def __init__(self, digits, sign='-'):
@@ -61,18 +62,23 @@ class BaseConverter(object):
         return "<BaseConverter: base%s (%s)>" % (len(self.digits), self.digits)
 
     def encode(self, i):
+        """encodes the given value"""
         neg, value = self.convert(i, self.decimal_digits, self.digits, '-')
         if neg:
             return self.sign + value
         return value
 
-    def decode(self, s):
-        neg, value = self.convert(s, self.digits, self.decimal_digits, self.sign)
+    def decode(self, _s):
+        """decodes the given value"""
+        neg, value = self.convert(_s, self.digits,
+                                  self.decimal_digits, self.sign)
         if neg:
             value = '-' + value
         return int(value)
 
-    def convert(self, number, from_digits, to_digits, sign):
+    @staticmethod
+    def convert(number, from_digits, to_digits, sign):
+        """Converts the base value"""
         if str(number)[0] == sign:
             number = str(number)[1:]
             neg = 1
@@ -80,20 +86,21 @@ class BaseConverter(object):
             neg = 0
 
         # make an integer out of the number
-        x = 0
+        _x = 0
         for digit in str(number):
-            x = x * len(from_digits) + from_digits.index(digit)
+            _x = _x * len(from_digits) + from_digits.index(digit)
 
         # create the result in base 'len(to_digits)'
-        if x == 0:
+        if _x == 0:
             res = to_digits[0]
         else:
             res = ''
-            while x > 0:
-                digit = x % len(to_digits)
+            while _x > 0:
+                digit = _x % len(to_digits)
                 res = to_digits[digit] + res
-                x = int(x // len(to_digits))
+                _x = int(_x // len(to_digits))
         return neg, res
+
 
 base2 = BaseConverter(BASE2_ALPHABET)
 base16 = BaseConverter(BASE16_ALPHABET)

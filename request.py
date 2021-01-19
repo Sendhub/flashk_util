@@ -1,17 +1,18 @@
-from builtins import str
-__author__ = 'brock'
-
 """
+request module
 Taken from:  https://gist.github.com/1094140
 """
+__author__ = 'brock'
 
 from functools import wraps
 from flask import request, current_app
 from werkzeug.routing import BaseConverter
 from werkzeug.exceptions import HTTPException
 
+
 def jsonp(func):
     """Wraps JSONified output for JSONP requests."""
+
     @wraps(func)
     def decorated_function(*args, **kwargs):
         callback = request.args.get('callback', False)
@@ -20,25 +21,26 @@ def jsonp(func):
             content = str(callback) + '(' + data + ')'
             mimetype = 'application/javascript'
             return current_app.response_class(content, mimetype=mimetype)
-        else:
-            return func(*args, **kwargs)
+        return func(*args, **kwargs)
+
     return decorated_function
 
 
-def getParamAsInt(request, key, default):
+def get_param_as_int(_request, key, default):
     """
     Safely pulls a key from the request and converts it to an integer
-    @param request: The HttpRequest object
+    @param _request: The HttpRequest object
     @param key: The key from request.args containing the desired value
     @param default: The value to return if the key does not exist
-    @return: The value matching the key, or if it does not exist, the default value provided.
+    @return: The value matching the key, or if it does not exist,
+    the default value provided.
     """
-    if key in request.args and request.args[key].isdigit():
-        return int(request.args.get(key))
-    else:
-        return default
+    if key in _request.args and _request.args[key].isdigit():
+        return int(_request.args.get(key))
+    return default
 
-def getClientIP(request):
+
+def get_client_ip(_request):
     """
     Pull the requested client IP address from the X-Forwarded-For request
     header. If there is more than one IP address in the value, it will return
@@ -47,31 +49,35 @@ def getClientIP(request):
     For more info, see: 'def access_route' in
     https://github.com/mitsuhiko/werkzeug/blob/master/werkzeug/wrappers.py
 
-    :param request:
+    :param _request:
     :return str: The client IP address, or none if neither the X-Forwarded-For
        header, nor REMOTE_ADDR are present in the environment.
     """
-    if request.access_route > 0:
-        ip = request.access_route[0]
+    if _request.access_route > 0:
+        ip_addr = _request.access_route[0]
     else:
-        ip = None
-    return ip
+        ip_addr = None
+    return ip_addr
+
 
 class RegexConverter(BaseConverter):
+    """class to convert the regex"""
     def __init__(self, url_map, *items):
-        super(RegexConverter, self).__init__(url_map)
-
+        super().__init__(url_map)
         self.regex = items[0]
 
+
 class ShHTTPException(HTTPException):
-
-    def get_body(self, environ):
+    """SendHub HTTPException"""
+    def get_body(self, environ=None):
         """Get the HTML body."""
-        return ('%(description)s') % {'description':  self.get_description(environ)}
+        return '%(description)s' % {
+            'description': self.get_description(environ)}
 
-    def get_headers(self, environ):
+    def get_headers(self, environ=None):
         """Always return errors as json"""
         return [('Content-Type', 'application/json')]
+
 
 class BadRequest(ShHTTPException):
     """*400* `Bad Request`
@@ -84,6 +90,7 @@ class BadRequest(ShHTTPException):
         '<p>The browser (or proxy) sent a request that this server could '
         'not understand.</p>'
     )
+
 
 class Unauthorized(ShHTTPException):
     """*401* `Unauthorized`
@@ -127,6 +134,7 @@ class NotFound(ShHTTPException):
         'try again.</p>'
     )
 
+
 class Conflict(ShHTTPException):
     """*409* `Conflict`
 
@@ -141,7 +149,8 @@ class Conflict(ShHTTPException):
         'might have been modified while the request was being processed.'
     )
 
-class NotImplemented(ShHTTPException):
+
+class _NotImplemented(ShHTTPException):
     """*501* `Not Implemented`
 
     Raise if the application does not support the action requested by the
@@ -153,19 +162,21 @@ class NotImplemented(ShHTTPException):
         'browser.</p>'
     )
 
-def paginate(request, objects, total, offset, limit):
-    def get_url(offset, limit):
-        return '{}?&offset={}&limit={}'.format(request.path, offset, limit)
+
+def paginate(_request, objects, total, _offset, _limit):
+    """Function to return the pagination response"""
+    def get_url(_offset, _limit):
+        return '{}?&offset={}&limit={}'.format(_request.path, _offset, _limit)
 
     response = {
         'meta': {
             'total': total,
-            'limit': limit,
-            'next': get_url(offset + limit, limit)
-            if offset + limit < total else None,
-            'previous': get_url(offset - limit, limit)
-            if offset - limit >= 0 else None,
-            'offset': offset,
+            'limit': _limit,
+            'next': get_url(_offset + _limit, _limit)
+            if _offset + _limit < total else None,
+            'previous': get_url(_offset - _limit, _limit)
+            if _offset - _limit >= 0 else None,
+            'offset': _offset,
         },
         'objects': objects
     }
