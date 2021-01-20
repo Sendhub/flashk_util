@@ -1,3 +1,4 @@
+"""response module"""
 from flask import jsonify
 from werkzeug.exceptions import HTTPException
 from werkzeug.exceptions import default_exceptions
@@ -29,5 +30,5 @@ def configure_flask_exception_handler(app):
     :return:
     """
 
-    for code in default_exceptions.iterkeys():
+    for code in list(default_exceptions.keys()):
         app.error_handler_spec[None][code] = make_json_error

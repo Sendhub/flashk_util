@@ -1,3 +1,5 @@
+"""Module for log task id filter"""
+# pylint: disable=R0903
 import logging
 from celery._state import get_current_task
 

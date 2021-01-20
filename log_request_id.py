@@ -1,3 +1,4 @@
+"""Module for log request id filter"""
 import logging
 from flask import request
 
@@ -10,7 +11,9 @@ class RequestIDFilter(logging.Filter):
     #using-filters-to-impart-contextual-information
     """
 
-    def get_unique_id(self):
+    @staticmethod
+    def get_unique_id():
+        """Get the request id from header"""
         try:
             unique_id = request.headers.get('X-Request-Id', None)
         except RuntimeError:

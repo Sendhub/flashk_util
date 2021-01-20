@@ -1,3 +1,4 @@
+"""log formatter module"""
 import logging
 
 
@@ -22,16 +23,16 @@ class ShLoggingFormatter(logging.Formatter):
     def __init__(self, fmt=None):
         logging.Formatter.__init__(self, fmt)
 
-    def _should_show_attr(self, record, attr):
+    @staticmethod
+    def _should_show_attr(record, attr):
         """
         Determines if the requested attribute should be included
         in the log output
         """
 
-        return True \
-            if hasattr(record, attr) and \
+        return hasattr(record, attr) and \
             getattr(record, attr) and \
-            getattr(record, attr) != 'none' else False
+            getattr(record, attr) != 'none'
 
     def format(self, record):
         """
@@ -49,9 +50,9 @@ class ShLoggingFormatter(logging.Formatter):
         elif show_task_id:
             unique_id = record.task_id
 
-        s = logging.Formatter.format(self, record)
+        _s = logging.Formatter.format(self, record)
 
         if unique_id:
-            s = '{} - {}'.format(unique_id, s)
+            _s = '{} - {}'.format(unique_id, _s)
 
-        return s
+        return _s

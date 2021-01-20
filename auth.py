@@ -1,18 +1,20 @@
 # -*- coding: utf-8 -*-
-
+""" authentication check"""
 from functools import wraps
 import flask
-from . import authdigest
+import authdigest
+
 
 class FlaskRealmDigestDb(authdigest.RealmDigestDb):
-    def requireAuth(self, f):
-        @wraps(f)
+    """Class to check authentication """
+    def require_auth(self, func):
+        """decorator function to check authentication"""
+        @wraps(func)
         def decorated(*args, **kwargs):
             request = flask.request
             if not self.isAuthenticated(request):
                 return self.challenge()
 
-            return f(*args, **kwargs)
+            return func(*args, **kwargs)
 
         return decorated
-
