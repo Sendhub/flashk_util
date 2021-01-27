@@ -8,7 +8,7 @@ import settings
 from flask import request
 from flask.globals import current_app
 from werkzeug.datastructures import Headers
-from sh_util.json import defaultEncoder
+from sh_util.json import default_encoder
 
 
 def jsonify(*args, **kwargs):
@@ -44,7 +44,7 @@ def jsonify(*args, **kwargs):
         json.dumps(
             dict(*args, **kwargs),
             indent=None if request.is_xhr else 4,
-            default=defaultEncoder
+            default=default_encoder
         ),
         mimetype='application/json'
     )
@@ -84,9 +84,7 @@ def get_view_window_params(*params):
         elif param == 'order':
             value = request.args.get(
                 param) if param in request.args else 'desc'
-        if value:
-            out.append(value)
-
+        out.append(value)
     return out
 
 
