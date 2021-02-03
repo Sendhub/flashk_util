@@ -8,7 +8,7 @@ import time
 import zlib
 import simplejson as json
 import settings
-import baseconv
+from . import baseconv
 
 SEP = ':'
 

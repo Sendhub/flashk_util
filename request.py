@@ -53,7 +53,7 @@ def get_client_ip(_request):
     :return str: The client IP address, or none if neither the X-Forwarded-For
        header, nor REMOTE_ADDR are present in the environment.
     """
-    if _request.access_route > 0:
+    if _request.access_route:
         ip_addr = _request.access_route[0]
     else:
         ip_addr = None
