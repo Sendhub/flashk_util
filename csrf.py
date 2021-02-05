@@ -14,7 +14,6 @@ set app.conf['CSRF_TOKEN'] to the header/cookie
 name you want to use.
 """
 
-from builtins import str
 import logging
 from uuid import uuid4
 from flask import abort, request, g
