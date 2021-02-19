@@ -29,6 +29,9 @@ def configure_flask_exception_handler(app):
     :param app:The flask app instance
     :return:
     """
-
     for code in list(default_exceptions.keys()):
-        app.error_handler_spec[None][code] = make_json_error
+        if None in app.error_handler_spec:
+            app.error_handler_spec[None][code] = make_json_error
+        else:
+            app.error_handler_spec[None] = {}
+            app.error_handler_spec[None][code] = make_json_error
