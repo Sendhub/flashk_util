@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# pylint: disable=E0401, E1101
+# pylint: disable=E0401, E1101,E0402
 """Crypto module"""
 import base64
 import hmac

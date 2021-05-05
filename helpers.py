@@ -11,7 +11,6 @@ from werkzeug.datastructures import Headers
 from sh_util.json import default_encoder
 
 
-
 def jsonify(*args, **kwargs):
     """Creates a :class:`~flask.Response` with the JSON representation of
     the given arguments with an `application/json` mimetype.  The arguments
