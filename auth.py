@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 """ authentication check"""
+# pylint: disable=E0401,R0903
 from functools import wraps
 import flask
 import authdigest
