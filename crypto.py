@@ -107,10 +107,10 @@ def base64_hmac(salt, value, key, algorithm='sha1'):
                                   algorithm=algorithm).digest()).decode()
 
 
-def signature(self, value):
+def signature(value):
     """adds signature"""
-    return base64_hmac(self.salt + 'signer', value, self.key,
-                       algorithm=self.algorithm)
+    return base64_hmac(settings.SALT + 'signer', value, settings.SECRET_KEY,
+                       algorithm='sha256')
 
 
 def constant_time_compare(val1, val2):
@@ -118,15 +118,23 @@ def constant_time_compare(val1, val2):
     return secrets.compare_digest(force_bytes(val1), force_bytes(val2))
 
 
-def unsign(self, signed_value):
+def _legacy_signature(value):
+    # RemovedInDjango40Warning.
+    legacy_algorithm = 'sha1'
+    return base64_hmac(settings.SALT + 'signer', value, settings.SECRET_KEY,
+                       algorithm=legacy_algorithm)
+
+
+def unsign(signed_value):
     """unsign the signature value"""
-    if self.SEP not in signed_value:
-        raise BadSignature('No "%s" found in value' % self.SEP)
-    value, sig = signed_value.rsplit(self.SEP, 1)
+    legacy_algorithm = 'sha1'
+    if SEP not in signed_value:
+        raise BadSignature('No "%s" found in value' % SEP)
+    value, sig = signed_value.rsplit(SEP, 1)
     if (
-            constant_time_compare(sig, self.signature(value)) or (
-            self.legacy_algorithm and
-            constant_time_compare(sig, self._legacy_signature(value))
+            constant_time_compare(sig, signature(value)) or (
+            legacy_algorithm and
+            constant_time_compare(sig, _legacy_signature(value))
     )
     ):
         return value
