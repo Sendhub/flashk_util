@@ -2,12 +2,13 @@
 # pylint: disable=E0401, E1101
 """Flask utilities and generalized helper functionality."""
 
-import unicodedata
 import simplejson as json
-import settings
+import unicodedata
 from flask import request
 from flask.globals import current_app
 from werkzeug.datastructures import Headers
+
+import settings
 from sh_util.json import default_encoder
 
 
@@ -99,21 +100,24 @@ def get_view_window_params_post(*params):
                                    'is not available'.format(param)
         value = None
         if param == 'offset':
-            if param in request_data.keys() and request_data.get(param).isdigit():
+            if (param in request_data.keys() and
+                    str(request_data.get(param, "")).isdigit()):
                 offset_value = request_data.get(param)
             else:
                 offset_value = 0
             value = int(offset_value)
 
         elif param == 'limit':
-            if param in request_data.keys() and request_data.get(param).isdigit():
+            if (param in request_data.keys() and
+                    str(request_data.get(param, "")).isdigit()):
                 limit_value = request_data.get(param)
             else:
                 limit_value = settings.pagingDefaultLimit
             value = int(limit_value)
 
         elif param == 'sort':
-            value = request_data.get(param) if param in request_data.keys() else None
+            value = request_data.get(param) \
+                if param in request_data.keys() else None
 
         elif param == 'order':
             value = request_data.get(
