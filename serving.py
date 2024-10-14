@@ -3,7 +3,7 @@
 """Extend werkzeug request handler to suit our needs."""
 
 import time
-from werkzeug.serving import BaseRequestHandler
+from werkzeug.serving import WSGIRequestHandler as BaseRequestHandler
 
 
 class ShRequestHandler(BaseRequestHandler):
