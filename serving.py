@@ -3,10 +3,10 @@
 """Extend werkzeug request handler to suit our needs."""
 
 import time
-from werkzeug.serving import WSGIRequestHandler as BaseRequestHandler
+from werkzeug.serving import WSGIRequestHandler
 
 
-class ShRequestHandler(BaseRequestHandler):
+class ShRequestHandler(WSGIRequestHandler):
     """Extend werkzeug request handler to suit our needs."""
     def __init__(self, *args, **kwargs):
         self.sh_request_started = None
