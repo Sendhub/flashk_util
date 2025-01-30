@@ -17,7 +17,7 @@ name you want to use.
 import logging
 from uuid import uuid4
 from flask import abort, request, g
-from werkzeug.routing import NotFound
+from werkzeug.exceptions import NotFound
 
 _exemptViews = []
 

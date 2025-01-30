@@ -44,7 +44,7 @@ def jsonify(*args, **kwargs):
     response = current_app.response_class(
         json.dumps(
             dict(*args, **kwargs),
-            indent=None if request.is_xhr else 4,
+            indent=None if request.headers.get('X-Requested-With') == 'XMLHttpRequest' else 4,
             default=default_encoder
         ),
         mimetype='application/json'
