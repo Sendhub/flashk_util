@@ -22,58 +22,62 @@ Convert numbers from base 10 integers to base X strings and back again.
 
 Sample usage::
 
-  >>> base20 = BaseConverter('0123456789abcdefghij')
-  >>> base20.encode(1234)
-  '31e'
-  >>> base20.decode('31e')
-  1234
-  >>> base20.encode(-1234)
-  '-31e'
-  >>> base20.decode('-31e')
-  -1234
-  >>> base11 = BaseConverter('0123456789-', sign='$')
-  >>> base11.encode('$1234')
-  '$-22'
-  >>> base11.decode('$-22')
-  '$1234'
+    >>> base20 = BaseConverter('0123456789abcdefghij')
+    >>> base20.encode(1234)
+    '31e'
+    >>> base20.decode('31e')
+    1234
+    >>> base20.encode(-1234)
+    '-31e'
+    >>> base20.decode('-31e')
+    -1234
+    >>> base11 = BaseConverter('0123456789-', sign='$')
+    >>> base11.encode('$1234')
+    '$-22'
+    >>> base11.decode('$-22')
+    '$1234'
 
 """
 
-BASE2_ALPHABET = '01'
-BASE16_ALPHABET = '0123456789ABCDEF'
-BASE56_ALPHABET = '23456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz'
-BASE36_ALPHABET = '0123456789abcdefghijklmnopqrstuvwxyz'
-BASE62_ALPHABET = '0123456789ABCDEFGHIJKLMNOPQRSTU' \
-                  'VWXYZabcdefghijklmnopqrstuvwxyz'
-BASE64_ALPHABET = BASE62_ALPHABET + '-_'
+BASE2_ALPHABET = "01"
+BASE16_ALPHABET = "0123456789ABCDEF"
+BASE56_ALPHABET = "23456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz"
+BASE36_ALPHABET = "0123456789abcdefghijklmnopqrstuvwxyz"
+BASE62_ALPHABET = "0123456789ABCDEFGHIJKLMNOPQRSTU" "VWXYZabcdefghijklmnopqrstuvwxyz"
+BASE64_ALPHABET = BASE62_ALPHABET + "-_"
 
 
 class BaseConverter:
-    """class for base converter"""
-    decimal_digits = '0123456789'
+    """
+    Class for base converter.
+    """
 
-    def __init__(self, digits, sign='-'):
+    decimal_digits = "0123456789"
+
+    def __init__(self, digits, sign="-"):
+        """
+        Initialize the base converter.
+        """
         self.sign = sign
         self.digits = digits
         if sign in self.digits:
-            raise ValueError('Sign character found in converter base digits.')
+            raise ValueError("Sign character found in converter base digits.")
 
     def __repr__(self):
-        return "<BaseConverter: base%s (%s)>" % (len(self.digits), self.digits)
+        return f"<BaseConverter: base{len(self.digits)} ({self.digits})>"
 
     def encode(self, i):
         """encodes the given value"""
-        neg, value = self.convert(i, self.decimal_digits, self.digits, '-')
+        neg, value = self.convert(i, self.decimal_digits, self.digits, "-")
         if neg:
             return self.sign + value
         return value
 
     def decode(self, _s):
         """decodes the given value"""
-        neg, value = self.convert(_s, self.digits,
-                                  self.decimal_digits, self.sign)
+        neg, value = self.convert(_s, self.digits, self.decimal_digits, self.sign)
         if neg:
-            value = '-' + value
+            value = "-" + value
         return int(value)
 
     @staticmethod
@@ -94,7 +98,7 @@ class BaseConverter:
         if _x == 0:
             res = to_digits[0]
         else:
-            res = ''
+            res = ""
             while _x > 0:
                 digit = _x % len(to_digits)
                 res = to_digits[digit] + res
@@ -107,10 +111,10 @@ base16 = BaseConverter(BASE16_ALPHABET)
 base36 = BaseConverter(BASE36_ALPHABET)
 base56 = BaseConverter(BASE56_ALPHABET)
 base62 = BaseConverter(BASE62_ALPHABET)
-base64 = BaseConverter(BASE64_ALPHABET, sign='$')
+base64 = BaseConverter(BASE64_ALPHABET, sign="$")
 
-if __name__ == '__main__':
-    print('101')
+if __name__ == "__main__":
+    print("101")
     res1 = base62.encode(101)
-    print('%s' % res1)
-    print('%s' % base62.decode(res1))
+    print(f"{res1}")
+    print(f"{base62.decode(res1)}")

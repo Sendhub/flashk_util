@@ -1,6 +1,6 @@
-# -*- coding: utf-8 -*-
-
-"""Flask app converters."""
+"""
+Flask app converters.
+"""
 
 from werkzeug.routing import BaseConverter
 
@@ -13,11 +13,12 @@ class RegexConverter(BaseConverter):
 
         app.url_map.converters['regex'] = RegexConverter
 
-    @see http://stackoverflow.com/questions/5870188/does-flask-
-    support-regular-expressions-in-its-url-routing
+    @see http://stackoverflow.com/questions/5870188/does-flask-support-regular-expressions-in-its-url-routing
     """
 
     def __init__(self, url_map, *items):
-        """Stores first additional argument as the regular expression."""
+        """
+        Store first additional argument as the regular expression.
+        """
         super().__init__(url_map)
         self.regex = items[0]
