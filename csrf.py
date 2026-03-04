@@ -31,6 +31,23 @@ def csrf(app, on_csrf=None):
     csrf_token_key = app.config.get("CSRF_TOKEN", "CSRF-TOKEN")
     csrf_token_domain = app.config.get("CSRF_TOKEN_DOMAIN", None)
 
+    internal_username = app.config.get("INTERNAL_USERNAME", "")
+    internal_password = app.config.get("INTERNAL_PASSWORD", "")
+
+    def request_has_valid_credentials():
+        """Check if request includes valid query parameter credentials."""
+        if not internal_username or not internal_password:
+            return False
+
+        api_username = request.args.get("apiUsername", "").strip()
+        api_password = request.args.get("apiPassword", "").strip()
+
+        if api_username == internal_username and api_password == internal_password:
+            logging.debug("CSRF exempted via valid query parameter credentials")
+            return True
+
+        return False
+
     def search_csrf_in_headers():
         """
         Search through a set of key-value pairs for a CSRF token.
@@ -68,6 +85,10 @@ def csrf(app, on_csrf=None):
             if request.method in ("POST", "PUT", "PATCH", "DELETE"):
                 csrf_token = request.cookies.get(csrf_token_key, None)
                 if (not csrf_token and not search_csrf_in_headers()) or (csrf_token != search_csrf_in_headers() and csrf_token != request.form.get(csrf_token_key, None)):
+
+                    if request_has_valid_credentials():
+                        return
+
                     if on_csrf and callable(on_csrf):
                         logging.debug("Invoking custom CSRF failure handler")
                         on_csrf(*app.match_request())
