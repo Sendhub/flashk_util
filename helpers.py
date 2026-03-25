@@ -32,7 +32,8 @@ def jsonify(*args, **kwargs):
     """
     # Moved to function level - only used here, may have dependency issues
     import simplejson as json
-    from sh_util.json import defaultEncoder
+
+    from utils.sh_util.sh_json import default_encoder as defaultEncoder
 
     status_code = kwargs.pop("status_code", None)
 
