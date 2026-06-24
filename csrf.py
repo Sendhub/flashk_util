@@ -78,6 +78,12 @@ def csrf(app, on_csrf=None):
         if app.config.get("TESTING"):
             return
 
+        # Seed (or refresh) the CSRF cookie on safe methods so SPA/API clients
+        # can read it and echo the value in X-XSRF-TOKEN on mutating requests.
+        if request.method in ("GET", "HEAD"):
+            generate_csrf_token()
+            return
+
         if not g.csrf_exempt:
             # NB: Do not enforce CSRF if there was no referer.
             # This frees API clients from worrying about it but
