@@ -91,7 +91,7 @@ class BadRequest(ShHTTPException):
     """
 
     code = 400
-    description = "<p>The browser (or proxy) sent a request that this server could " "not understand.</p>"
+    description = "<p>The browser (or proxy) sent a request that this server could not understand.</p>"
 
 
 class Unauthorized(ShHTTPException):
@@ -120,7 +120,7 @@ class Forbidden(ShHTTPException):
     """
 
     code = 403
-    description = "<p>You don't have the permission to access the requested resource. " "It is either read-protected or not readable by the server.</p>"
+    description = "<p>You don't have the permission to access the requested resource. It is either read-protected or not readable by the server.</p>"
 
 
 class NotFound(ShHTTPException):
@@ -130,7 +130,7 @@ class NotFound(ShHTTPException):
     """
 
     code = 404
-    description = "<p>The requested URL was not found on the server.</p>" "<p>If you entered the URL manually please check your spelling and " "try again.</p>"
+    description = "<p>The requested URL was not found on the server.</p><p>If you entered the URL manually please check your spelling and try again.</p>"
 
 
 class Conflict(ShHTTPException):
@@ -143,7 +143,7 @@ class Conflict(ShHTTPException):
     """
 
     code = 409
-    description = "<p>A conflict happened while processing the request.  The resource " "might have been modified while the request was being processed."
+    description = "<p>A conflict happened while processing the request.  The resource might have been modified while the request was being processed."
 
 
 class _NotImplemented(ShHTTPException):
@@ -154,7 +154,7 @@ class _NotImplemented(ShHTTPException):
     """
 
     code = 501
-    description = "<p>The server does not support the action requested by the " "browser.</p>"
+    description = "<p>The server does not support the action requested by the browser.</p>"
 
 
 def paginate(_request, objects, total, _offset, _limit):

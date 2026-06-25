@@ -140,12 +140,12 @@ def csvify(*_args, **kwargs):
         """Write the header and the iterate over the rows."""
         ####################################################################
         # write the header
-        yield f'{" ,".join(headers)}\n'
+        yield f"{' ,'.join(headers)}\n"
         ####################################################################
         # Write the body of the document
         # ----> First generate the format string reused for each row in the csv
         #       file such that row_string = '{},{},{},{},...\n'
-        row_string = f'{",".join(["\"{}\"" for _header in headers])}\n'
+        row_string = f"{','.join(['"{}"' for _header in headers])}\n"
         # ---> Then use that format string as the output to the next row
         for row in rows:
             # Get a value for each header, making sure to escape quotes and

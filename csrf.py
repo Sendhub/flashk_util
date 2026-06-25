@@ -85,7 +85,6 @@ def csrf(app, on_csrf=None):
             if request.method in ("POST", "PUT", "PATCH", "DELETE"):
                 csrf_token = request.cookies.get(csrf_token_key, None)
                 if (not csrf_token and not search_csrf_in_headers()) or (csrf_token != search_csrf_in_headers() and csrf_token != request.form.get(csrf_token_key, None)):
-
                     if request_has_valid_credentials():
                         return
 
