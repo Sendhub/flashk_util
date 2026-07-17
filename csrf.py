@@ -69,6 +69,12 @@ def csrf(app, on_csrf=None):
         except NotFound:
             g.csrf_exempt = False
 
+        # Ensure a token exists for every request, not just ones where a Jinja
+        # template happens to call the `csrfToken` global. API-only/SPA
+        # consumers never render a template, so without this the double-submit
+        # cookie was never set and every non-exempt mutating request 400ed.
+        generate_csrf_token()
+
     @app.before_request
     def _csrf_protect():
         """
