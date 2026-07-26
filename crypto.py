@@ -149,7 +149,7 @@ def unsign(signed_value):
 def load_encoded_s(unsigned_value):
     """Takes an unsigned value and decompresses and deserializes it."""
     if len(unsigned_value) == 0 or unsigned_value[0] != ".":
-        raise Exception(f'Invalid unsigned value, "{unsigned_value}", was expecting something which starts with a "."')
+        raise ValueError(f'Invalid unsigned value, "{unsigned_value}", was expecting something which starts with a "."')
     data = b64_decode(unsigned_value[1:])
     data2 = zlib.decompress(data)
     return json.loads(data2)
@@ -167,6 +167,6 @@ def dict2signed(data):
 
     value = f"{b64d}:{baseconv.base62.encode(int(time.time()))}"
 
-    signed = f"{value}:{base64_hmac((settings.SALT + 'signer', value, settings.SECRET_KEY))}"
+    signed = f"{value}:{base64_hmac(settings.SALT + 'signer', value, settings.SECRET_KEY)}"
 
     return signed

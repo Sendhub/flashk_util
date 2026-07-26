@@ -30,7 +30,7 @@ def configure_flask_exception_handler(app):
     Args:
         app: The flask app instance.
     """
-    for code in list(default_exceptions.keys()):
+    for code in default_exceptions.keys():
         if None in app.error_handler_spec:
             app.error_handler_spec[None][code] = make_json_error
         else:

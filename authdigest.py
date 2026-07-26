@@ -94,7 +94,7 @@ class RealmDigestDb:
     @staticmethod
     def new_db():
         """Returns dict"""
-        return dict()
+        return {}
 
     @staticmethod
     def new_algorithm(algorithm):
@@ -118,7 +118,7 @@ class RealmDigestDb:
             return auth_result.deny("invalid_password")
         return auth_result.approve("success")
 
-    challengeClass = werkzeug.Response
+    challenge_class = werkzeug.Response
 
     def challenge(self, response=None, status=401):
         """Sets headers to response"""
@@ -129,7 +129,7 @@ class RealmDigestDb:
         try:
             auth_req = response.www_authenticate
         except AttributeError:
-            response = self.challengeClass(response, status)
+            response = self.challenge_class(response, status)
             auth_req = response.www_authenticate
         else:
             if isinstance(status, int):
@@ -202,7 +202,7 @@ class DigestAuthentication:
 
     def __init__(self, algorithm="md5"):
         self.algorithm = algorithm.lower()
-        self._h = self.hashAlgorithms[self.algorithm]
+        self._h = self.hash_algorithms[self.algorithm]
 
     def verify(self, authorization, hash_pass=None, method="GET", **kw):
         """Verifies authorization"""
@@ -247,20 +247,20 @@ class DigestAuthentication:
     def _compute_qop_empty(self, auth, ha1, ha2):
         return self._h(ha1, auth.nonce, ha2)
 
-    hashAlgorithms = {}
+    hash_algorithms = {}
 
     @classmethod
     def add_digest_hash_alg(cls, key, hash_obj):
         """Adding hashing algorithms"""
         key = key.lower()
 
-        def H(*args):  # pylint: disable=C0103
+        def h(*args):  # pylint: disable=C0103
             _x = ":".join(map(str, args))
             return hash_obj(_x).hexdigest()
 
-        H.__name__ = "H_" + key
-        cls.hashAlgorithms[key] = H
-        return H
+        h.__name__ = "H_" + key
+        cls.hash_algorithms[key] = h
+        return h
 
 
 DigestAuthentication.add_digest_hash_alg("md5", hashlib.md5)

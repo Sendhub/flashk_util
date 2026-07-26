@@ -74,11 +74,11 @@ class RegexConverter(BaseConverter):
 class ShHTTPException(HTTPException):
     """SendHub HTTPException"""
 
-    def get_body(self, environ=None):
+    def get_body(self, environ=None, scope=None):
         """Get the HTML body."""
         return f"{self.get_description(environ)}"
 
-    def get_headers(self, environ=None):
+    def get_headers(self, environ=None, scope=None):
         """Always return errors as json"""
         return [("Content-Type", "application/json")]
 
