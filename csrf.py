@@ -98,7 +98,7 @@ def csrf(app, on_csrf=None):
                         logging.debug("Invoking custom CSRF failure handler")
                         on_csrf(*app.match_request())
 
-                    logging.error("CSRF verification failed, aborting request")
+                    logging.warning("CSRF verification failed, aborting request")
                     abort(400)
 
     @app.after_request
