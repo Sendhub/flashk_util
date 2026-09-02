@@ -3,6 +3,8 @@ Tests for flashk_util.request: jsonp decorator, request-arg helpers,
 SendHub HTTPException subclasses, and paginate().
 """
 
+import json
+
 import pytest
 from flask import Flask
 from werkzeug.routing import Map
@@ -21,7 +23,6 @@ from flashk_util.request import (
     jsonp,
     paginate,
 )
-
 
 # ---------------------------------------------------------------------------
 # jsonp
@@ -163,10 +164,34 @@ def test_exception_classes_have_expected_codes(exc_class, code):
     assert issubclass(exc_class, ShHTTPException)
 
 
-def test_sh_http_exception_get_body_returns_bare_description(app):
+def test_sh_http_exception_get_body_returns_raw_description(app):
+    """get_body() must return the description as-is, NOT routed through
+    get_description() — the werkzeug default HTML-escapes and <p>-wraps it,
+    which breaks JSON parsing for callers even though get_headers() declares
+    Content-Type: application/json."""
     with app.test_request_context("/"):
         err = NotFound()
-        assert err.get_body() == err.get_description()
+        assert err.get_body() == err.description
+        assert err.get_body() != err.get_description()
+
+
+def test_sh_http_exception_get_body_preserves_json_description(app):
+    """A JSON-serialized description (e.g. from ErrorResponse) must survive
+    get_body() unescaped and unwrapped, so callers expecting
+    Content-Type: application/json get an actually-parseable body."""
+    with app.test_request_context("/"):
+        payload = {"message": "trial-over", "dev_message": "", "code": "", "more_info": ""}
+        err = NotFound(json.dumps(payload))
+        body = err.get_body()
+        assert body == json.dumps(payload)
+        assert json.loads(body) == payload
+
+
+def test_sh_http_exception_get_body_handles_none_description(app):
+    with app.test_request_context("/"):
+        err = NotFound()
+        err.description = None
+        assert err.get_body() == ""
 
 
 def test_sh_http_exception_get_headers_forces_json_content_type(app):

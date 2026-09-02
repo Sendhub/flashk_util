@@ -75,8 +75,16 @@ class ShHTTPException(HTTPException):
     """SendHub HTTPException"""
 
     def get_body(self, environ=None, scope=None):
-        """Get the HTML body."""
-        return f"{self.get_description(environ)}"
+        """Return the raw description as-is.
+
+        get_headers() promises `Content-Type: application/json`, so unlike
+        werkzeug's default get_body() this must NOT route through
+        get_description() — that unconditionally HTML-escapes and wraps the
+        description in <p> tags, which turns a JSON description (e.g. from
+        ErrorResponse) into an HTML-escaped, non-JSON body despite the
+        declared content type.
+        """
+        return "" if self.description is None else str(self.description)
 
     def get_headers(self, environ=None, scope=None):
         """Always return errors as json"""
